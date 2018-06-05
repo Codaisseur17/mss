@@ -1,0 +1,46 @@
+#!/bin/bash
+source .repos
+
+yarn global add typescript
+
+if [ ! -d "Frontend" ]; then
+  echo "Cloning the Frontend..."
+  git clone git@github.com:Codaisseur17/Frontend.git
+fi
+
+for pair in "${REPOS[@]}"; do
+  remote="git@github.com:Codaisseur17/${pair%%:*}.git"
+  local_dir="${pair##*:}"
+
+  echo "Setting up ${local_dir} for local development"
+
+  if [ ! -d "${local_dir}" ]; then
+    echo "...cloning repository"
+    git clone ${remote} ${local_dir}
+  fi
+
+  cd $local_dir
+
+  echo "...installing dependencies"
+  yarn install
+
+  echo "...compiling TypeScript"
+  tsc -p .
+
+  echo "...injecting Dockefile"
+  cp ../Dockerfile.apis Dockerfile
+
+  cd ..
+
+  echo "done!"
+done
+
+echo "Done!"
+echo
+echo "To run everything, type:"
+echo
+echo "  docker-compose up"
+echo
+echo "Then run the front-end, cd into the Frontend folder and type:"
+echo
+echo "yarn start"

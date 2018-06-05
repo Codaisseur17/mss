@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# This poor mans associative array will be expanded to a `git clone` command.
+# The key (before the `:`) will be used as the repo name:
+# the value is the name of the local (sub) directory where the repo will be cloned
+# The value should also be the 1-to-1 mapping of the service name in docker-compose.yml
+#
+# In pseudo code it would look like this:
+# => "git clone git@github.com:Codaisseur/codaisseur-${key}.git ${value}"
+
+REPOS=(
+  "authentication:authentication"
+  "responses_api:responses"
+  "webhooks-api:webhooks"
+  "quiz_api:quizzes"
+  "users:users"
+)

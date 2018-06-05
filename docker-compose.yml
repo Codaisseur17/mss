@@ -1,0 +1,120 @@
+version: '3'
+services:
+  authentication:
+    build: ./authentication
+    volumes:
+      - ./authentication/target:/app/target
+      - ./authentication/package.json:/app/package.json
+      - ./authentication/tsconfig.json:/app/tsconfig.json
+      - ./authentication/yarn.lock:/app/yarn.lock
+    entrypoint: ''
+    command:
+      - '/bin/bash'
+      - '-c'
+      - 'yarn && yarn run dev'
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - QUIZZES_URL=http://quizzes:4001
+      - RESPONSES_URL=http://responses:4002
+      - USERS_URL=http://users:4003
+      - WEBHOOKS_URL=http://webhooks:4004
+    ports:
+      - "4000:4000"
+    depends_on:
+      - users
+
+  quizzes:
+    build: ./quizzes
+    volumes:
+      - ./quizzes/target:/app/target
+      - ./quizzes/package.json:/app/package.json
+      - ./quizzes/tsconfig.json:/app/tsconfig.json
+      - ./quizzes/yarn.lock:/app/yarn.lock
+    entrypoint: ''
+    command:
+      - '/bin/bash'
+      - '-c'
+      - 'yarn && yarn run dev'
+    environment:
+      - NODE_ENV=development
+      - PORT=4001
+      - DATABASE_URL=postgres://codaisseur:pass@postgres:5432/codaisseur
+    ports:
+      - "4001:4001"
+    depends_on:
+      - postgres
+      - webhooks
+
+  responses:
+    build: ./responses
+    volumes:
+      - ./responses/target:/app/target
+      - ./responses/package.json:/app/package.json
+      - ./responses/tsconfig.json:/app/tsconfig.json
+      - ./responses/yarn.lock:/app/yarn.lock
+    entrypoint: ''
+    command:
+      - '/bin/bash'
+      - '-c'
+      - 'yarn && yarn run dev'
+    environment:
+      - NODE_ENV=development
+      - PORT=4002
+      - DATABASE_URL=postgres://codaisseur:pass@postgres:5432/codaisseur
+    ports:
+      - "4002:4002"
+    depends_on:
+      - postgres
+      - quizzes
+      - webhooks
+
+  users:
+    build: ./users
+    volumes:
+      - ./users/target:/app/target
+      - ./users/package.json:/app/package.json
+      - ./users/tsconfig.json:/app/tsconfig.json
+      - ./users/yarn.lock:/app/yarn.lock
+    entrypoint: ''
+    command:
+      - '/bin/bash'
+      - '-c'
+      - 'yarn && yarn run dev'
+    environment:
+      - NODE_ENV=development
+      - PORT=4003
+      - DATABASE_URL=postgres://codaisseur:pass@postgres:5432/codaisseur
+    ports:
+      - "4003:4003"
+    depends_on:
+      - postgres
+
+  webhooks:
+    build: ./webhooks
+    volumes:
+      - ./webhooks/target:/app/target
+      - ./webhooks/package.json:/app/package.json
+      - ./webhooks/tsconfig.json:/app/tsconfig.json
+      - ./webhooks/yarn.lock:/app/yarn.lock
+    entrypoint: ''
+    command:
+      - '/bin/bash'
+      - '-c'
+      - 'yarn && yarn run dev'
+    environment:
+      - NODE_ENV=development
+      - PORT=4004
+      - DATABASE_URL=postgres://codaisseur:pass@postgres:5432/codaisseur
+    ports:
+      - "4004:4004"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:10-alpine
+    environment:
+      - POSTGRES_USER=codaisseur
+      - POSTGRES_PASSWORD=pass
+    ports:
+      - "5432:5432"
